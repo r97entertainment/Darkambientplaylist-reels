@@ -16,7 +16,7 @@ echo "$GDRIVE_SERVICE_ACCOUNT" > ~/.config/rclone/service_account.json
 cat <<EOF > ~/.config/rclone/rclone.conf
 [private_drive]
 type = drive
-service_account_file = ~/.config/rclone/service_account.json
+service_account_file = $HOME/.config/rclone/service_account.json
 scope = drive.readonly
 EOF
 
