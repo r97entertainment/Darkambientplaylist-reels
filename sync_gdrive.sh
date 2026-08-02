@@ -9,7 +9,7 @@ MAPPINGS="audio:audio reels/Darkambientplaylist:reels"
 echo "🔐 Setting up Path-Specific Smart Sync..."
 
 # 1. Prepare Rclone & Auth
-sudo apt-get install rclone -y --quiet
+curl https://rclone.org/install.sh | sudo bash
 mkdir -p ~/.config/rclone
 echo "$GDRIVE_SERVICE_ACCOUNT" > ~/.config/rclone/service_account.json
 
