@@ -45,14 +45,15 @@ part2=$(echo "$raw" | awk -F'|' '{print $2}' | sed -e 's/^[[:space:]]*//' -e 's/
 echo "$part1" | fold -s -w 45 > "$TMP/quote_part1.txt"
 echo "$part2" | fold -s -w 45 > "$TMP/quote_part2.txt"
 
-# --- 5. VISUAL TIMING & FILTERS (STABLE VERSION) ---
-# Removed the crop wipe. Text 1 stays the whole time. Text 2 appears at 11s.
-FILTER="[1:v]scale=180:-1,format=rgba,fade=t=in:st=0:d=1.0:alpha=1[logo_p]; \
-[0:v][logo_p]overlay=x=(W-w)/2:y=H-h-120:shortest=1[v_l]; \
-[v_l]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part1.txt':fontcolor=white:fontsize=45: \
+# --- 5. VISUAL TIMING & FILTERS ---
+# Logo fades IN at 4.5s and OUT at 10.5s. Placed in dead-center: x=(W-w)/2:y=(H-h)/2
+# Text 1 is permanent. Text 2 appears at 11.0s. Fontsize reduced to 35.
+FILTER="[1:v]scale=180:-1,format=rgba,fade=t=in:st=4.5:d=0.5:alpha=1,fade=t=out:st=10.0:d=0.5:alpha=1[logo_p]; \
+[0:v][logo_p]overlay=x=(W-w)/2:y=(H-h)/2:shortest=1[v_l]; \
+[v_l]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part1.txt':fontcolor=white:fontsize=35: \
 shadowcolor=black:shadowx=3:shadowy=3:line_spacing=15:x=(w-text_w)/2:y=(h*0.12):expansion=none[v_t1]; \
-[v_t1]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part2.txt':fontcolor=white:fontsize=45: \
-shadowcolor=black:shadowx=3:shadowy=3:line_spacing=15:x=(w-text_w)/2:y=(h*0.12)+80: \
+[v_t1]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part2.txt':fontcolor=white:fontsize=35: \
+shadowcolor=black:shadowx=3:shadowy=3:line_spacing=15:x=(w-text_w)/2:y=(h*0.12)+50: \
 enable='gte(t,11.0)':expansion=none[v_f]"
 
 VISUAL_MASTER="$TMP/visual_master.mp4"
