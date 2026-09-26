@@ -51,22 +51,19 @@ logo_start=0
 logo_fade_out=$(echo "$DUR" | awk '{print ($1 > 1.5) ? $1 - 1.2 : $1 - 0.2}')
 part2_start=$(echo "$DUR" | awk '{print $1 - 3}')
 
-# Filter logic:
-# 1. Creates transparent canvases for the text.
-# 2. Draws text at Top 20% (h*0.20).
-# 3. Uses a dynamic crop width (in_w*min(t/2,1)) to sweep left-to-right over 2 seconds.
+# Filter logic: added max(1, ...) to prevent crop width from ever hitting 0
 FILTER="[1:v]scale=180:-1,format=rgba,fade=t=in:st=${logo_start}:d=0.5:alpha=1,fade=t=out:st=${logo_fade_out}:d=0.5:alpha=1[logo_p]; \
 [0:v][logo_p]overlay=x=(W-w)/2:y=H-h-80:shortest=1[v_l]; \
 color=c=black@0.0:s=1080x1920:r=30:d=${DUR},format=rgba [txt_canvas_1]; \
 [txt_canvas_1]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part1.txt':fontcolor=white:fontsize=40: \
 shadowcolor=black:shadowx=2:shadowy=2:line_spacing=15:x=(w-text_w)/2:y=(h*0.20):expansion=none [t1_full]; \
-[t1_full]crop=w='in_w*min(t/2,1)':h=in_h:x=0:y=0 [t1_wipe]; \
+[t1_full]crop=w='max(1,in_w*min(t/2,1))':h=in_h:x=0:y=0 [t1_wipe]; \
 [t1_wipe]fade=t=out:st=5.0:d=0.5:alpha=1 [t1_ready]; \
 [v_l][t1_ready]overlay=0:0:enable='between(t,0,5.5)' [v_t1]; \
 color=c=black@0.0:s=1080x1920:r=30:d=${DUR},format=rgba [txt_canvas_2]; \
 [txt_canvas_2]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part2.txt':fontcolor=white:fontsize=40: \
 shadowcolor=black:shadowx=2:shadowy=2:line_spacing=15:x=(w-text_w)/2:y=(h*0.20):expansion=none [t2_full]; \
-[t2_full]crop=w='in_w*min(max(t-${part2_start},0)/1.5,1)':h=in_h:x=0:y=0 [t2_wipe]; \
+[t2_full]crop=w='max(1,in_w*min(max(t-${part2_start},0)/1.5,1))':h=in_h:x=0:y=0 [t2_wipe]; \
 [v_t1][t2_wipe]overlay=0:0:enable='gte(t,${part2_start})' [v_f]"
 
 VISUAL_MASTER="$TMP/visual_master.mp4"
@@ -78,7 +75,7 @@ ffmpeg -i "$MERGED_RAW" -loop 1 -i "$LOGO_PATH" -filter_complex "$FILTER" \
 echo "🎵 Step 3: Adding Audio..."
 FADE_VAL=$(echo "$DUR" | awk '{print ($1 > 2) ? $1 - 2 : 0}')
 
-# Sanitize Part 1 (Removed xargs to prevent quote crashing)
+# Sanitize Part 1
 safe_name=$(echo "$part1" | tr -cd '[:alnum:] ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | cut -c1-50)
 url_filename="${safe_name// /_}.mp4"
 out_file="$OUTPUT_DIR/$url_filename"
