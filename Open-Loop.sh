@@ -33,7 +33,18 @@ MERGED_RAW="$TMP/merged_raw.mp4"
 ffmpeg -f concat -safe 0 -i "$TMP/list.txt" -c copy "$MERGED_RAW" -y -loglevel error
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$MERGED_RAW")
 
-3. The "Left-to-Right" Reveal Hack
+# --- 4. PARSE QUOTE & TEXT PREP ---
+echo "🎨 Step 2: Applying Split Text Logic (Duration: ${DUR}s)..."
+TOTAL=$(wc -l < "$QUOTES_FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+line=$((RANDOM % TOTAL + 1))
+raw=$(sed -n "${line}p" "$QUOTES_FILE" | perl -pe 's/[^[:ascii:]]//g; s/[\x00-\x1f\x7f]//g')
+
+# Split by the pipe character and trim whitespace using sed instead of xargs
+part1=$(echo "$raw" | awk -F'|' '{print $1}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+part2=$(echo "$raw" | awk -F'|' '{print $2}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+echo "$part1" | fold -s -w 45 > "$TMP/quote_part1.txt"
+echo "$part2" | fold -s -w 45 > "$TMP/quote_part2.txt"
 
 # --- 5. VISUAL TIMING & WIPES ---
 logo_start=0
