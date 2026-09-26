@@ -33,18 +33,7 @@ MERGED_RAW="$TMP/merged_raw.mp4"
 ffmpeg -f concat -safe 0 -i "$TMP/list.txt" -c copy "$MERGED_RAW" -y -loglevel error
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$MERGED_RAW")
 
-# --- 4. PARSE QUOTE & TEXT PREP ---
-echo "🎨 Step 2: Applying Split Text Logic (Duration: ${DUR}s)..."
-TOTAL=$(wc -l < "$QUOTES_FILE" | xargs)
-line=$((RANDOM % TOTAL + 1))
-raw=$(sed -n "${line}p" "$QUOTES_FILE" | perl -pe 's/[^[:ascii:]]//g; s/[\x00-\x1f\x7f]//g' | xargs)
-
-# Split by the pipe character
-part1=$(echo "$raw" | awk -F'|' '{print $1}' | xargs)
-part2=$(echo "$raw" | awk -F'|' '{print $2}' | xargs)
-
-echo "$part1" | fold -s -w 45 > "$TMP/quote_part1.txt"
-echo "$part2" | fold -s -w 45 > "$TMP/quote_part2.txt"
+3. The "Left-to-Right" Reveal Hack
 
 # --- 5. VISUAL TIMING & WIPES ---
 logo_start=0
@@ -78,8 +67,8 @@ ffmpeg -i "$MERGED_RAW" -loop 1 -i "$LOGO_PATH" -filter_complex "$FILTER" \
 echo "🎵 Step 3: Adding Audio..."
 FADE_VAL=$(echo "$DUR" | awk '{print ($1 > 2) ? $1 - 2 : 0}')
 
-# Sanitize Part 1 to remove ellipses, punctuation, and spaces
-safe_name=$(echo "$part1" | tr -cd '[:alnum:] ' | awk '{$1=$1};1' | cut -c1-50 | xargs)
+# Sanitize Part 1 (Removed xargs to prevent quote crashing)
+safe_name=$(echo "$part1" | tr -cd '[:alnum:] ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | cut -c1-50)
 url_filename="${safe_name// /_}.mp4"
 out_file="$OUTPUT_DIR/$url_filename"
 
