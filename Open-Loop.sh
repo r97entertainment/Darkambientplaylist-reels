@@ -55,7 +55,7 @@ end_fade=14.0
 # 2. Generate Transparent Canvas 1 -> Draw Text 1 -> Apply Fade In/Out -> Overlay
 # 3. Generate Transparent Canvas 2 -> Draw Text 2 -> Apply Fade In/Out -> Overlay
 FILTER="[1:v]scale=180:-1,format=rgba,fade=t=in:st=${logo_start}:d=0.5:alpha=1,fade=t=out:st=${logo_fade_out}:d=0.5:alpha=1[logo_p]; \
-[0:v][logo_p]overlay=x=(W-w)/2:y=H-h-120:shortest=1[v_l]; \
+[0:v][logo_p]overlay=x=(W-w)/2:y=H-h-100:shortest=1[v_l]; \
 color=c=black@0.0:s=1080x1920:r=30:d=${DUR},format=rgba [txt_canvas_1]; \
 [txt_canvas_1]drawtext=fontfile='${FONT}':textfile='$TMP/quote_part1.txt':fontcolor=white:fontsize=40: \
 shadowcolor=black:shadowx=3:shadowy=3:line_spacing=15:x=(w-text_w)/2:y=(h*0.12):expansion=none [t1_drawn]; \
