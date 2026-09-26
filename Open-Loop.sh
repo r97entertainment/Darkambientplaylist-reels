@@ -98,10 +98,11 @@ if [ -f "$out_file" ]; then
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     echo "🌿 Detected branch: $CURRENT_BRANCH"
 
+# Cleanup old videos in output folder
     find "$OUTPUT_DIR" -type f ! -name "$url_filename" -delete
     
-    git add .
-    git add "$out_file"
+    # Only stage changes in the output folder (handles both the deleted old file and the added new file)
+    git add "$OUTPUT_DIR"
 
     RAW_URL="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${CURRENT_BRANCH}/output/${url_filename}"
 
